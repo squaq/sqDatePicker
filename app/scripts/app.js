@@ -61,7 +61,9 @@ angular.module('sqDatePickerApp', [])
             while (date.getMonth() === month) {
 //                console.log(date.getUTCDay());
                 if(date.getUTCDay() === 0){ templateTd +='<tr>'; }//starting week line
-                templateTd +='<td>'+date.getDate()+'</td>'; 
+                
+                var wkd = (date.getUTCDay() === 0 || date.getUTCDay() === 6)? "wkd" : "";
+                templateTd +='<td class="'+wkd+'">'+date.getDate()+'</td>'; 
                 if(date.getUTCDay() === 6){ templateTd +='</tr>'; }//ending week line
                 date.setDate(date.getDate() + 1);
 //                date.setDate(date.getDate() + 7);
