@@ -14,11 +14,11 @@ angular.module('sqDatePickerApp', [])
         restrict : 'E',
         template:'<div id="calendar"><div class="header">{{cMonthName}} {{cYear}}</div><table id="days"> <td>Su</td><td>Mo</td><td>Tu</td><td>We</td><td>Th</td><td>Fr</td><td>Sa</td></table><div id="cal-frame"><table class="curr"><tbody></tbody> </table></div></div>',
         scope: {
-            monthName: '@'
+            monthName: '@',
+            yearName: '@'
         },
         link:function(scope, element){
-            
-            console.log(date)
+    
             var date = new Date();
             
             
@@ -26,6 +26,17 @@ angular.module('sqDatePickerApp', [])
             if(scope.monthName){ 
                 scope.monthName = scope.monthName.charAt(0).toUpperCase() + scope.monthName.slice(1);
             }
+            
+            //fixing angular directive link problem
+            var obj = angular.element.find('.curr tbody');
+            for(var i in obj) {
+                if(!angular.element(obj[i]).hasClass('dp')) {
+                    angular.element(obj[i]).addClass('dp');
+                    angular.element(obj[i]).addClass('dp'+scope.$id);   
+                    break;
+                }
+            }
+            
             
             function monthNumers(){
                 return { 'January':0, 'February':1, 'March':2, 'April':3, 'May':4, 'June':5, 'July':6, 'August':7, 'September':8, 'October':9, 'November':10, 'December':11 };
@@ -68,7 +79,7 @@ angular.module('sqDatePickerApp', [])
                 if(date.getUTCDay() === 6){ templateTd +='</tr>'; }//ending week line
                 date.setDate(date.getDate() + 1);
             }
-            element.parent().find('.curr tbody').append(templateTd);
+            element.parent().find('.curr .dp'+scope.$id).append(templateTd);
         }
     };
 });
