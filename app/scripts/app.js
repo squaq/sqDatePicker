@@ -12,74 +12,127 @@ angular.module('sqDatePickerApp', [])
 .directive('dtPicker', function(){
     return {
         restrict : 'E',
-        template:'<div id="calendar"><div class="header">{{cMonthName}} {{cYear}}</div><table id="days"> <td>Su</td><td>Mo</td><td>Tu</td><td>We</td><td>Th</td><td>Fr</td><td>Sa</td></table><div id="cal-frame"><table class="curr"><tbody></tbody> </table></div></div>',
+        template:
+        '<div id="calendar">'+
+        
+        '<div class="header">{{cMonthName}} {{cYear}}</div>'+
+        '<div id="dpControllers">'+
+            '<button type="button" class="btn btn-default " ng-click="rwd()"><</button>'+
+            '<button type="button" class="btn btn-default pull-right" ng-click="fwd()">></button>'+
+        '</div>'+        
+        '<table id="days">'+
+            '<td>Su</td><td>Mo</td><td>Tu</td><td>We</td><td>Th</td><td>Fr</td><td>Sa</td></table><div id="cal-frame">'+
+        '<table class="curr"><tbody></tbody> </table>'+
+        '</div>'+
+        '</div>',
         scope: {
             monthName: '@',
-            yearName: '@'
+            year: '@',
+            date:'@'
         },
         link:function(scope, element){
-    
-            var date = new Date();
             
-            
-            //setting month captal letter
-            if(scope.monthName){ 
-                scope.monthName = scope.monthName.charAt(0).toUpperCase() + scope.monthName.slice(1);
-            }
-            
-            //fixing angular directive link problem
-            var obj = angular.element.find('.curr tbody');
-            for(var i in obj) {
-                if(!angular.element(obj[i]).hasClass('dp')) {
-                    angular.element(obj[i]).addClass('dp');
-                    angular.element(obj[i]).addClass('dp'+scope.$id);   
-                    break;
+            function init(){
+               scope.date = new Date();
+                
+                //checking if exists "year" setted up in the tag
+                if(scope.year){
+                    scope.cYear = scope.year;
+                }else{
+                    scope.cYear = scope.date.getUTCFullYear();
                 }
+
+                //setting month captal letter
+                if(scope.monthName){ 
+                    scope.monthName = scope.monthName.charAt(0).toUpperCase() + scope.monthName.slice(1);
+                }
+                
+                //checking if exists monthName setted up in the tag
+                var mn = monthNames().indexOf(scope.monthName);
+                if(mn === -1){
+                    mn = scope.date.getMonth();
+                }
+
+                setDates(mn);
+                createCalendar();
             }
-            
-            
-            function monthNumers(){
-                return { 'January':0, 'February':1, 'March':2, 'April':3, 'May':4, 'June':5, 'July':6, 'August':7, 'September':8, 'October':9, 'November':10, 'December':11 };
-            }            
-            scope.cYear = date.getFullYear();
-            
-            var monthNumber = monthNumers()[scope.monthName];
-            if(monthNumber) { 
-                date.setMonth(monthNumber); 
-                scope.cMonthName = scope.monthName;
-            }
-            else { 
-                for(var m in monthNumers())
-                {
-                    if(monthNumers()[m] === date.getMonth()){
-                        scope.cMonthName = m; 
+                
+            function createCalendar() {
+                //fixing angular directive link problem
+                var obj = angular.element.find('.curr tbody');
+                for(var i in obj) {
+                    if(!angular.element(obj[i]).hasClass('dp')) {
+                        angular.element(obj[i]).addClass('dp');
+                        angular.element(obj[i]).addClass('dp'+scope.$id);   
+                        break;
                     }
                 }
-                scope.monthName = date.getMonth();
-            }
-            
-            console.log(date);
-            date.setDate(1);
-            console.log(scope.monthName);
-            
-            var month = date.getMonth(),
-                templateTd = '<tr>';
-            //adding after day td's
-            for(var i = date.getUTCDay(); i > 0; i--){
-                templateTd+='<td class="nil"></td>';
-            }
-            //loop for build all days 
-            while (date.getMonth() === month) {
+                
+                scope.date.setDate(1);
+                
+                var month = scope.date.getMonth(),
+                    templateTd = '<tr>';
+                //adding after day td's
+                for(var i = scope.date.getUTCDay(); i > 0; i--){
+                    templateTd+='<td class="nil"></td>';
+                }
+                //loop for build all days 
+                while (scope.date.getMonth() === month) {
 
-                if(date.getUTCDay() === 0){ templateTd +='<tr>'; }//starting week line
-                
-                var wkd = (date.getUTCDay() === 0 || date.getUTCDay() === 6)? "wkd" : "";
-                
-                templateTd +='<td class="'+wkd+'">'+date.getDate()+'</td>'; 
-                if(date.getUTCDay() === 6){ templateTd +='</tr>'; }//ending week line
-                date.setDate(date.getDate() + 1);
+                    if(scope.date.getUTCDay() === 0){ templateTd +='<tr>'; }//starting week line
+
+                    var wkd = (scope.date.getUTCDay() === 0 || scope.date.getUTCDay() === 6)? "wkd" : "";
+
+                    templateTd +='<td class="'+wkd+'">'+scope.date.getDate()+'</td>'; 
+                    if(scope.date.getUTCDay() === 6){ templateTd +='</tr>'; }//ending week line
+                    scope.date.setDate(scope.date.getDate() + 1);
+                }
+                element.parent().find('.curr .dp'+scope.$id).append(templateTd);            }
+            
+            
+            
+            function monthNames(){
+                return [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             }
-            element.parent().find('.curr .dp'+scope.$id).append(templateTd);
+            
+            
+            function setDates(monthNumber){
+                scope.monthName = scope.cMonthName = monthNames()[monthNumber];
+                scope.date.setUTCFullYear(scope.cYear);
+                scope.date.setMonth(monthNumber);
+                scope.date.setDate(1);
+            }
+            
+            
+            function resetCalendar(){
+                setDates(scope.date.getMonth());
+                element.parent().find('.curr .dp'+scope.$id+' tr').remove();
+                element.parent().find('.curr .dp'+scope.$id).removeClass('dp');
+                element.parent().find('.curr .dp'+scope.$id).removeClass('dp'+scope.$id);
+                createCalendar();
+            }
+            
+            //forward click button action set next month
+            scope.fwd = function(){
+                scope.date.setUTCMonth(monthNames().indexOf(scope.cMonthName)+1);
+                if(scope.date.getUTCMonth() === 0){
+                    scope.date.setFullYear(scope.cYear+1);
+                    scope.cYear = scope.date.getFullYear();
+                }
+                resetCalendar();
+            }
+            
+            //reward click button action set last month
+            scope.rwd = function(){
+                scope.date.setUTCMonth(monthNames().indexOf(scope.cMonthName)-1);
+                if(scope.date.getUTCMonth() === 11){
+                    scope.date.setFullYear(scope.cYear-1);
+                    scope.cYear = scope.date.getFullYear();
+                }
+                resetCalendar();
+            }
+            
+            init();
         }
     };
 });

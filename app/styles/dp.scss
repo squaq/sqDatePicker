@@ -1,0 +1,49 @@
+#calendar{ 
+    width: 180px;
+    .header{
+        text-align: center;
+        
+    }
+}
+#dpControllers{
+    margin-top: -48px;
+}
+#days {
+    tbody {
+        tr {
+            td {
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+
+tbody {
+    tr {
+        td {
+//                padding: 8px 8px;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+//                font-weight: bold;
+        }
+    }
+}
+//}
+.curr {
+    tbody {
+        tr {
+            td {
+                cursor: pointer;
+            }
+            td:hover{
+                background-color: azure;
+            }
+            
+            td.wkd{
+                color: #00a;
+            }
+        }
+    }
+}
